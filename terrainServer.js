@@ -28,7 +28,7 @@ if(!process.env.NOSTATIC) {
 	app.use(express.static(__dirname, {index: "terrain2stl.html"}));
 }
 
-app.post("/",function(req,res){
+app.post("/gen",function(req,res){
 	var b = req.body;
 	//lat, long, width, height, verticalscale, rot, waterDrop, baseHeight
 
@@ -71,5 +71,5 @@ app.post("/",function(req,res){
 });
 
 var datetime = new Date();
-console.log("terrainServer.js starting at:");
+console.log("terrainServer.js starting on port "+ PORT +" at time:");
 console.log(datetime);
