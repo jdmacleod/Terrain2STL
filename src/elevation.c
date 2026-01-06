@@ -75,6 +75,7 @@ int getElevationLine(float* heights, int width, int nthLine, float startLat,floa
 				p += (int)(1201*(ceil(intlat)-intlat))* 1201;	//y or lat component
 
 				if(elfile==NULL){  //if we can't open the file, return height = 0
+					fprintf(stderr, "Unable to open '%s' for reading!\n", tileName);
 					h = 0;
 				}else{             //otherwise read height from file
 					fseek(elfile, p*2, SEEK_SET);
