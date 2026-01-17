@@ -13,10 +13,16 @@ default: ## Build the celevstl executable
 test: default ## test the celevstl executable
 	./celevstl 44.1928 -69.0851 40 40 1.7 0 1 3 1 test.stl
 
+zip: ## Build the celevstl-zip executable
+	gcc src/elevstl-zip.c src/STLWriter.c src/elevation-zip.c src/readzip.c -o celevstl-zip -lm -lzip -lz
+	
+test-zip: zip ## test the celevstl-zip executable
+	./celevstl-zip 44.1928 -69.0851 40 40 1.7 0 1 3 1 test-zip.stl
+
 server-dirs:  ## create server output directories
 	mkdir -p logs
 	mkdir -p stls
 
-run-server: default server-dirs ## run the terrain2stl server
+run-server: default server-dirs
 	npm install
 	node terrainServer.js
