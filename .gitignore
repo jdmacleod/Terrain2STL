@@ -9,3 +9,6 @@ elevstl
 celevstl
 /stls/*
 include-maps.js
+
+# VS Code user-specific files (personal settings, not for sharing)
+.vscode/
