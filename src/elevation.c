@@ -67,7 +67,6 @@ int getElevationLine(float* heights, int width, int nthLine, float startLat,floa
 					if(elfile != NULL) fclose(elfile);
 					#warning "Handle the case where we can't open the file - return zeros for ocean elev"
 		      elfile = fopen(tileName, "rb");
-			  fprintf(stdout, "Opened tile file '%s'\n", tileName);
 					if(elfile == NULL){
 					}
 				}
@@ -81,8 +80,6 @@ int getElevationLine(float* heights, int width, int nthLine, float startLat,floa
 				}else{             //otherwise read height from file
 					fseek(elfile, p*2, SEEK_SET);
 					fread(number, 1, 2, elfile);
-					//fprintf(stdout, "Read from '%s' position %d values %d %d\n", tileName, p*2, number[0], number[1]);
-
 			    h = number[1];
 			    if(h<0){
 			      h = h+255;
