@@ -20,6 +20,15 @@ char *read_file_from_zip(const char *zip_path, const char *file_in_zip)
     char *content = NULL;
     int err = 0;
 
+    // 0. Check that zip archive exists
+    FILE *test = fopen(zip_path, "rb");
+    if (test == NULL)
+    {
+        fprintf(stderr, "Zip archive %s does not exist: %s\n", zip_path, strerror(errno));
+        return NULL;
+    }
+    fclose(test);
+
     // 1. Open the zip archive in read-only mode
     archive = zip_open(zip_path, ZIP_RDONLY, &err);
     if (archive == NULL)
@@ -56,6 +65,7 @@ char *read_file_from_zip(const char *zip_path, const char *file_in_zip)
     }
 
     // 5. Allocate memory for the file content (+1 for null terminator)
+    fprintf(stdout, "readzip Allocating %zu bytes for file content of %s\n", (long unsigned int)(file_info.size + 1), file_in_zip);
     content = (char *)malloc(file_info.size + 1);
     if (content == NULL)
     {

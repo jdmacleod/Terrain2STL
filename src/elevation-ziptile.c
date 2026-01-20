@@ -1,13 +1,28 @@
-// elevation-zip.c
-// Gets elevations at points and in regions, from a zip archive
+// elevation-ziptile.c
+// Gets elevations at points and in regions, from an array of tiles loaded from zip archive
 
 #include <zip.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "readzip.h"
 #include "tiles.h"
+
+// Function to print the byte representation of any data type
+void print_bytes(void *p, size_t len)
+{
+	size_t i;
+	unsigned char *byte_ptr = (unsigned char *)p;
+	printf("(");
+	for (i = 0; i < len; ++i)
+	{
+		// %02X prints the byte in uppercase hex, with a minimum width of 2, zero-padded
+		printf("%02X", byte_ptr[i]);
+	}
+	printf(")");
+}
 
 int getTile(char *filename, size_t len, float lat, float lng)
 {
@@ -41,9 +56,7 @@ int getTileIndex(float lat, float lng)
 int tileNumber = 0;
 char tileName[100];
 char tileNameZip[100];
-FILE *elfile;
-char *tileData = NULL;
-
+Tile *foundTile = NULL;
 
 // width and heigth are in 'pixels'
 // heights must be able to accomodate width-many values
@@ -84,48 +97,37 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 				float intlng = floor(lng * 1200 + a) / 1200.0;
 				// floor(lng*1200+a)/1200;
 
-				if (getTileIndex(intlat, intlng) != tileNumber || elfile == NULL)
+				if (getTileIndex(intlat, intlng) != tileNumber || tileName[0] == '\0')
 				{
 					tileNumber = getTileIndex(intlat, intlng);
 					getTileZip(tileNameZip, 100, intlat, intlng);
 					getTile(tileName, 100, intlat, intlng);
-					if (tileData != NULL)
-						free(tileData);
 #warning "Handle the case where we can't open the file - return zeros for ocean elev"
-					
-					// check if tile is already loaded in heightFiles
-					Tile *found4 = find_tile_by_name(&ta, "Edwin");
-					if (found4 != NULL) {
-						printf("Found Tile ID: %d, Name: %s, Height Data: %s\n", found4->id, found4->name, found4->heightData);
-					} else {
-						printf("Tile with name Edwin not found, need to load it.\n");
-					}
 
-					// else Open the ZIP archive and append to heightFiles
-					tileData = read_file_from_zip(tileNameZip, tileName);
-
-					if (tileData != NULL)
+					// check if tile is already loaded in TileArray
+					foundTile = find_tile_by_name(ta, tileName);
+					if (foundTile == NULL)
 					{
-						//printf("Content of %s:\n%s\n", tileName, tileData);
-					}
-					
+						fprintf(stdout, "Tile with name %s not found, need to load it.\n", tileName);
+						char *file_content = read_file_from_zip(tileNameZip, tileName);
+						add_Tile(ta, tileNumber, tileName, file_content);
+						foundTile = find_tile_by_name(ta, tileName);
+						fprintf(stdout, "Loaded tile %s, will access its height data.\n", tileName);
+					}			
 				}
-
 				int p = (int)(1201 * (intlng - floor(intlng)));	   // x or lng component
 				p += (int)(1201 * (ceil(intlat) - intlat)) * 1201; // y or lat component
 
-				if (tileData == NULL)
-				{ // if we can't open the file, return height = 0
-					fprintf(stderr, "Unable to open '%s' for reading!\n", tileName);
+				// possible empty tile check?
+				if (foundTile->heightData[0] == 0 && foundTile->heightData[1] == 0) // improve this empty check
+				{																	// if we can't open the file, return height = 0
+					fprintf(stderr, "tile height data is NULL for '%s'!\n", tileName);
 					h = 0;
 				}
 				else
-				{ // otherwise read height from file buffer
-					number[0] = tileData[p * 2];
-					number[1] = tileData[p * 2 + 1];
-					//fseek(elfile, p * 2, SEEK_SET);
-					//fread(number, 1, 2, elfile);
-					//fprintf(stdout, "Read from '%s' buffer position %d values %d %d\n", tileName, p*2, number[0], number[1]);
+				{											  // otherwise read height from tile array
+					number[0] = foundTile->heightData[p * 2]; // High byte
+					number[1] = foundTile->heightData[p * 2 + 1];
 
 					h = number[1];
 					if (h < 0)
@@ -152,9 +154,5 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 		float intHeight = westLng * (1 - fracLng) + eastLng * fracLng;
 		heights[x] = intHeight * vscale + baseHeight;
 	}
-	if (tileData != NULL)
-		free(tileData);
-		fprintf(stdout, "Freed tileData for %s\n", tileName);
-	tileData = NULL;
 	return 1;
 }

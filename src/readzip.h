@@ -1,3 +1,6 @@
+#ifndef READZIP_H
+#define READZIP_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,3 +15,4 @@
  *         The caller is responsible for freeing the memory.
  */
 char *read_file_from_zip(const char *zip_path, const char *file_in_zip);
+#endif // READZIP_H

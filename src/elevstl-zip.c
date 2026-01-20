@@ -154,7 +154,6 @@ int main(int argc, char **argv)			//lat, long, width, height, verticalscale, rot
 
 	//get zeroth line
 	getElevationLine(nextline, width, -height, lat, lng, scaleFactor, rot, waterDrop,baseHeight, stepSize);
-	fprintf(stdout, "Got zeroth line of elevations for lat %f lon %f\n", lat, lng);
 	tris += writeLineWall(stl, nextline, width, cos(globalLat), -height, 0);
 
 	for(int y = -height+1; y<=0; y++){
@@ -162,7 +161,6 @@ int main(int argc, char **argv)			//lat, long, width, height, verticalscale, rot
 			prevline[x] = nextline[x];
 		}
 		getElevationLine(nextline, width, y, lat, lng, scaleFactor, rot, waterDrop,baseHeight, stepSize);
-		fprintf(stdout, "Got yth %d line of elevations for lat %f lon %f\n", y, lat, lng);
 		tris += writeXStrip(stl, prevline, nextline, width, cos(globalLat), y-1, y);
 		fflush(stl);
 	}

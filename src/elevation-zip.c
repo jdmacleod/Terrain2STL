@@ -96,9 +96,7 @@ int getElevationLine(float *heights, int width, int nthLine, float startLat, flo
 						free(tileData);
 #warning "Handle the case where we can't open the file - return zeros for ocean elev"
 					
-					// check if tile is already loaded in heightFiles
-
-					// else Open the ZIP archive and append to heightFiles
+					// else Open the ZIP archive and make data available
 					tileData = read_file_from_zip(tileNameZip, tileName);
 
 					if (tileData != NULL)
@@ -120,10 +118,7 @@ int getElevationLine(float *heights, int width, int nthLine, float startLat, flo
 				{ // otherwise read height from file buffer
 					number[0] = tileData[p * 2];
 					number[1] = tileData[p * 2 + 1];
-					//fseek(elfile, p * 2, SEEK_SET);
-					//fread(number, 1, 2, elfile);
-					//fprintf(stdout, "Read from '%s' buffer position %d values %d %d\n", tileName, p*2, number[0], number[1]);
-
+					// convert from big-endian to little-endian
 					h = number[1];
 					if (h < 0)
 					{
