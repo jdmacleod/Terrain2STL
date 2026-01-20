@@ -35,6 +35,10 @@ server-dirs:  ## create server output directories
 	mkdir -p logs
 	mkdir -p stls
 
-run-server: default server-dirs
+run-server: default server-dirs ## run the terrain server with node.js
 	npm install
 	node terrainServer.js
+
+clean: ## Clean up build artifacts
+	rm -f celevstl celevstl-zip celevstl-ziptile readziphgt tileszip
+	rm -f test.stl test-zip.stl test-ziptile.stl

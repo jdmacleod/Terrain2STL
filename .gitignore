@@ -7,6 +7,10 @@
 *.min.*
 elevstl
 celevstl
+celevstl-zip
+celevstl-ziptile
+readziphgt
+tileszip
 /stls/*
 include-maps.js
 
