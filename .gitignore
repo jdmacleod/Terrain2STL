@@ -16,3 +16,11 @@ include-maps.js
 
 # VS Code user-specific files (personal settings, not for sharing)
 .vscode/
+
+# Python cache files
+__pycache__/
+*.pyc
+.venv/
+
+# earthdata cached files
+cookie.txt

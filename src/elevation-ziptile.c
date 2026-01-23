@@ -35,6 +35,17 @@ int getTile(char *filename, size_t len, float lat, float lng)
 	return snprintf(filename, len, "%c%02d%c%03d.hgt", ns, tileLat, ew, tileLng);
 }
 
+int getTileSRTM(char *filename, size_t len, float lat, float lng)
+{
+	char ns = lat >= 0 ? 'N' : 'S'; // Positive is north
+	char ew = lng >= 0 ? 'E' : 'W'; // Positive is east
+
+	int tileLat = abs((int)floor(lat));
+	int tileLng = abs((int)floor(lng));
+
+	return snprintf(filename, len, "%c%02d%c%03d.SRTMGL3.hgt", ns, tileLat, ew, tileLng);
+}
+
 int getTileZip(char *filename, size_t len, float lat, float lng)
 {
 	char ns = lat >= 0 ? 'N' : 'S'; // Positive is north
@@ -56,6 +67,8 @@ int getTileIndex(float lat, float lng)
 int tileNumber = 0;
 char tileName[100];
 char tileNameZip[100];
+char tileNameSRTM[100];
+
 Tile *foundTile = NULL;
 
 // width and heigth are in 'pixels'
@@ -102,6 +115,7 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 					tileNumber = getTileIndex(intlat, intlng);
 					getTileZip(tileNameZip, 100, intlat, intlng);
 					getTile(tileName, 100, intlat, intlng);
+					getTileSRTM(tileNameSRTM, 100, intlat, intlng);
 #warning "Handle the case where we can't open the file - return zeros for ocean elev"
 
 					// check if tile is already loaded in TileArray
@@ -109,6 +123,12 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 					if (foundTile == NULL)
 					{
 						fprintf(stdout, "Tile with name %s not found, need to load it.\n", tileName);
+						// call external program to check and download tile if needed
+						fprintf(stdout, "Calling external program 'get_srtm_tile.py'...\n");
+						char command[100];
+						snprintf(command, sizeof(command), "python3.12 get_srtm_tile.py %s", tileNameSRTM);
+    					int status = system(command);
+    					fprintf(stdout, "External program finished with status %d.\n", status);
 						char *file_content = read_file_from_zip(tileNameZip, tileName);
 						add_Tile(ta, tileNumber, tileName, file_content);
 						foundTile = find_tile_by_name(ta, tileName);
