@@ -1,3 +1,11 @@
+# define some project variables, using git if available
+PROJECTNAME := $(shell basename $(PWD))
+COMMIT=$(shell git rev-parse --short HEAD 2>/dev/null || echo "no-git")
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "no-git")
+BUILD_DATE := $(shell date +%Y-%m-%dT%H:%M:%S%z)
+CURRENT_DIR := $(shell pwd)
+CURRENT_USER := $(shell whoami)
+VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0-nogit")
 # Define architecture-specific variables
 ifeq ($(shell uname -m),arm64)
   # Apple Silicon (M1/M2/M3...)
