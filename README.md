@@ -107,3 +107,25 @@ To get the Google Maps view to load, you'll need to get a (free) Google Maps API
 - [x] Vertical scale slider
   - [x] Increase scale range (maybe to 4x)
 - [x] Compress STL files
+
+### AWS Deployment
+
+Deploying this service on AWS is handled as follows:
+
+- An AWS EC2 instance is instantiated using the AWS CDK
+- In the "userdata" setup script for the EC2 instance:
+  - The necessary software is installed (NodeJS, Python, C development)
+  - The code for this service is cloned from GitHub
+  - The environment is prepared for the service
+  - The Makefile entry `run-server` is invoked to start the service
+
+AWS SSM Parameter Store is used to store and retrieve the NASA Earthdata credentials needed for downloading the SRTM tiles (see [get_srtm_tile.py](./get_srtm_tile.py)). The AWS region "US-west-2" must be used for deployment, as that is where the NASA datasets are hosted in AWS.
+
+### References
+
+- <https://www.earthdata.nasa.gov/data/catalog/lpcloud-srtmimgm-003>
+- <https://aws.amazon.com/blogs/aws/earth-on-aws-a-home-for-geospatial-data-on-aws/>
+- <https://csidotinfo.wordpress.com/data/srtm-90m-digital-elevation-database-v4-1/>
+- <https://github.com/boto/botocore/issues/2837>
+- <https://github.com/nasa-esdswg-ml/edc-notebooks/blob/main/EDC%20Data%20Access/s3-access-beyond-one-hour.ipynb>
+- <https://dwtkns.com/srtm/>
