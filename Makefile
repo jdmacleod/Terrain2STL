@@ -6,6 +6,7 @@ BUILD_DATE := $(shell date +%Y-%m-%dT%H:%M:%S%z)
 CURRENT_DIR := $(shell pwd)
 CURRENT_USER := $(shell whoami)
 VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0-nogit")
+
 # Define architecture-specific variables
 ifeq ($(shell uname -m),arm64)
   # Apple Silicon (M1/M2/M3...)

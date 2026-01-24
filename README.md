@@ -129,3 +129,4 @@ AWS SSM Parameter Store is used to store and retrieve the NASA Earthdata credent
 - <https://github.com/boto/botocore/issues/2837>
 - <https://github.com/nasa-esdswg-ml/edc-notebooks/blob/main/EDC%20Data%20Access/s3-access-beyond-one-hour.ipynb>
 - <https://dwtkns.com/srtm/>
+- <https://opengislab.com/blog/tag/hgt+file+DEM>
