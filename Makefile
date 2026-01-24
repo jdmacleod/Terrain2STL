@@ -1,3 +1,23 @@
+# Define architecture-specific variables
+ifeq ($(shell uname -m),arm64)
+  # Apple Silicon (M1/M2/M3...)
+  BREW_PREFIX := /opt/homebrew
+  ARCH_FLAGS := -arch arm64 -mcpu=native
+else
+  # Intel (x86_64)
+  BREW_PREFIX := /usr/local
+  ARCH_FLAGS := -arch x86_64
+endif
+
+# --- Common Variables ---
+CC := gcc
+# Use brew's clang if available, otherwise system default
+CLANG := $(BREW_PREFIX)/opt/llvm/bin/clang
+# Check if clang exists in the brew prefix
+ifeq ($(wildcard $(CLANG)),)
+    CLANG := clang
+endif
+
 .PHONY: help
 
 help: ## Display this help screen
@@ -8,28 +28,28 @@ help: ## Display this help screen
 	@echo
 	
 default: ## Build the celevstl executable
-	gcc src/elevstl.c src/STLWriter.c src/elevation.c -o celevstl -lm
+	$(CC) src/elevstl.c src/STLWriter.c src/elevation.c -o celevstl -lm $(ARCH_FLAGS)
 
 test: default ## test the celevstl executable
 	./celevstl 44.1928 -69.0851 40 40 1.7 0 1 3 1 test.stl
 
 zip: ## Build the celevstl-zip executable
-	gcc src/elevstl-zip.c src/STLWriter.c src/elevation-zip.c src/readzip.c -o celevstl-zip -lm -lzip -lz
+	$(CC) src/elevstl-zip.c src/STLWriter.c src/elevation-zip.c src/readzip.c -o celevstl-zip -lm -lzip -lz $(ARCH_FLAGS)
 	
 test-zip: zip ## test the celevstl-zip executable
 	./celevstl-zip 44.1928 -69.0851 40 40 1.7 0 1 3 1 test-zip.stl
 
 ziptile: ## Build the celevstl-ziptile executable
-	gcc src/elevstl-ziptile.c src/STLWriter.c src/elevation-ziptile.c src/readzip.c src/tiles.c -o celevstl-ziptile -lm -lzip -lz
+	$(CC) src/elevstl-ziptile.c src/STLWriter.c src/elevation-ziptile.c src/readzip.c src/tiles.c -o celevstl-ziptile -lm -lzip -lz $(ARCH_FLAGS)
 
 test-ziptile: ziptile ## test the celevstl-ziptile executable
 	./celevstl-ziptile 44.1928 -69.0851 40 40 1.7 0 1 3 1 test-ziptile.stl
 
 readziphgt: ## Build the readziphgt test executable
-	gcc src/readziphgt_main.c src/readzip.c -o readziphgt -lzip -lz
+	$(CC) src/readziphgt_main.c src/readzip.c -o readziphgt -lzip -lz $(ARCH_FLAGS)
 
 tileszip: ## Build the tileszip test executable
-	gcc src/tileszip_main.c src/tiles.c src/readzip.c -o tileszip -lzip -lz
+	$(CC) src/tileszip_main.c src/tiles.c src/readzip.c -o tileszip -lzip -lz $(ARCH_FLAGS)
 
 server-dirs:  ## create server output directories
 	mkdir -p logs
@@ -38,6 +58,10 @@ server-dirs:  ## create server output directories
 run-server: default server-dirs ## run the terrain server with node.js
 	npm install
 	node terrainServer.js
+
+run-server-aws: ziptile server-dirs ## run the terrain server for AWS with node.js
+	npm install
+	node terrainServer-aws.js
 
 clean: ## Clean up build artifacts
 	rm -f celevstl celevstl-zip celevstl-ziptile readziphgt tileszip
