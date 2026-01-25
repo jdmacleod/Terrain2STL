@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
-
+#include <sys/wait.h>
 #include "readzip.h"
 #include "tiles.h"
 
@@ -65,6 +65,7 @@ int getTileIndex(float lat, float lng)
 }
 
 int tileNumber = 0;
+bool isAvailable = false;
 char tileName[100];
 char tileNameZip[100];
 char tileNameSRTM[100];
@@ -119,6 +120,9 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 #warning "Handle the case where we can't open the file - return zeros for ocean elev"
 
 					// check if tile is already loaded in TileArray
+					// if not, load it from zip file
+					// if the zip file is not present, call external program to download it
+					// from NASA Earthdata. Handle the case where the file does not exist (ocean)
 					foundTile = find_tile_by_name(ta, tileName);
 					if (foundTile == NULL)
 					{
@@ -127,21 +131,53 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 						fprintf(stdout, "Calling external python program 'get_srtm_tile.py'...\n");
 						char command[100];
 						snprintf(command, sizeof(command), "./get_srtm_tile.py %s", tileNameSRTM);
-    					int status = system(command);
-    					fprintf(stdout, "External program finished with status %d.\n", status);
-						char *file_content = read_file_from_zip(tileNameZip, tileName);
-						add_Tile(ta, tileNumber, tileName, file_content);
-						foundTile = find_tile_by_name(ta, tileName);
-						fprintf(stdout, "Loaded tile %s, will access its height data.\n", tileName);
-					}			
+						int status = system(command);
+						if (WIFEXITED(status))
+						{
+							int exit_status = WEXITSTATUS(status);
+							fprintf(stdout, "External program exited with status %d.\n", exit_status);
+							if (exit_status == 0)
+							{
+								fprintf(stdout, "External program completed successfully.\n");
+								isAvailable = true;
+							}
+							else
+							{
+								fprintf(stderr, "External program failed with exit status %d.\n", exit_status);
+								isAvailable = false;
+							}
+						}
+						else
+						{
+							fprintf(stderr, "External program did not exit normally.\n");
+							isAvailable = false;
+						}
+						if (!isAvailable)
+						{
+							fprintf(stderr, "Tile %s is not available, using empty data.\n", tileName);
+							// add empty tile
+							char emptyData[SRTM_TILE_SIZE_BYTES + 1] = {0};
+							add_Tile(ta, tileNumber, isAvailable, tileName, emptyData);
+							foundTile = find_tile_by_name(ta, tileName);
+						}
+						else
+						{
+							fprintf(stdout, "Tile %s is available, loading from zip.\n", tileName);
+
+							char *file_content = read_file_from_zip(tileNameZip, tileName);
+							add_Tile(ta, tileNumber, isAvailable, tileName, file_content);
+							foundTile = find_tile_by_name(ta, tileName);
+							fprintf(stdout, "Loaded tile %s, will access its height data.\n", tileName);
+						}
+					}
 				}
 				int p = (int)(1201 * (intlng - floor(intlng)));	   // x or lng component
 				p += (int)(1201 * (ceil(intlat) - intlat)) * 1201; // y or lat component
 
 				// possible empty tile check?
-				if (foundTile->heightData[0] == 0 && foundTile->heightData[1] == 0) // improve this empty check
-				{																	// if we can't open the file, return height = 0
-					fprintf(stderr, "tile height data is NULL for '%s'!\n", tileName);
+				if (foundTile->heightData[0] == 0 && foundTile->heightData[1] == 0 && !foundTile->is_available) // improve this empty check
+				{																								// if we can't open the file, return height = 0
+					// fprintf(stderr, "tile height data is NULL for '%s'!\n", tileName);
 					h = 0;
 				}
 				else

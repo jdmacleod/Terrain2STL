@@ -1,6 +1,7 @@
 #ifndef TILES_H
 #define TILES_H
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 #define SRTM_TILE_SIZE 1201 * 1201              // SRTMGL3 tiles are 1201x1201 samples
@@ -10,6 +11,7 @@
 typedef struct
 {
     int id;                                    // the index of the tile
+    bool is_available;                         // whether the tile is available from NASA
     char *name;                                // filename of the tile
     char heightData[SRTM_TILE_SIZE_BYTES + 1]; // height data array plus null terminator
 } Tile;
@@ -26,7 +28,7 @@ typedef struct
 void init_TileArray(TileArray *ta, size_t initialCapacity);
 
 // Function to add a new tile to the dynamic array
-void add_Tile(TileArray *ta, int id, const char *name, const char *heightData);
+void add_Tile(TileArray *ta, int id, bool is_available, const char *name, const char *heightData);
 
 // Function to free all allocated memory
 void free_TileArray(TileArray *ta);

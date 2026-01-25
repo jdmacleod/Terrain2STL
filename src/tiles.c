@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "tiles.h"
 
@@ -17,7 +15,7 @@ void init_TileArray(TileArray *ta, size_t initialCapacity)
 }
 
 // Function to add a new tile to the dynamic array
-void add_Tile(TileArray *ta, int id, const char *name, const char *heightData)
+void add_Tile(TileArray *ta, int id, bool is_available, const char *name, const char *heightData)
 {
     // 1. Check Capacity and Reallocate
     if (ta->size >= ta->capacity)
@@ -49,6 +47,7 @@ void add_Tile(TileArray *ta, int id, const char *name, const char *heightData)
 
     // 3. Assign values
     ta->array[ta->size].id = id;
+    ta->array[ta->size].is_available = is_available;
     memcpy(ta->array[ta->size].heightData, heightData, SRTM_TILE_SIZE_BYTES + 1); // Copy height data, as binary, including null terminator
     strcpy(ta->array[ta->size].name, name);                                       // Copy the name string
 
@@ -75,7 +74,7 @@ void listTiles(TileArray *ta)
 {
     for (size_t i = 0; i < ta->size; i++)
     {
-        fprintf(stdout, "listing Tile ID: %d, Name: %s\n", ta->array[i].id, ta->array[i].name);
+        fprintf(stdout, "listing Tile ID: %d, Name: %s, Available: %s\n", ta->array[i].id, ta->array[i].name, ta->array[i].is_available ? "Available" : "Not Available");
     }
 }
 

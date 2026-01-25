@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 import os
-import pprint
 import sys
 
 from dataclasses import dataclass, field
@@ -103,134 +102,14 @@ else:
             cloud_hosted=True,  # Ensure data is cloud-hosted for direct S3 access
         )
 
+    # The NASA SRTM data was not generated for ocean areas, so some tiles will not exist
+    # when no results are found, exit with code 1
     print(f"Found {len(results)} granules matching the criteria.")
-    #for r in results:
-        # print("result:", r)
-        # print("raw:", repr(r))
-        # print(f"Converting to standard dict: {dict(r)}")
-        # print(f"Converting to pretty dict: {pprint.pprint(dict(r))}")
-
-    sample_meta = {
-        "collection-concept-id": "C2763266377-LPCLOUD",
-        "concept-id": "G2822547092-LPCLOUD",
-        "concept-type": "granule",
-        "format": "application/echo10+xml",
-        "native-id": "N00E109.SRTMGL3.hgt",
-        "provider-id": "LPCLOUD",
-        "revision-date": "2023-12-22T15:58:36.464Z",
-        "revision-id": 1,
-    }
-    sample_size = (1.29836,)
-    sample_umm = {
-        "AdditionalAttributes": [
-            {
-                "Name": "identifier_product_doi_authority",
-                "Values": ["http://dx.doi.org"],
-            },
-            {
-                "Name": "identifier_product_doi",
-                "Values": ["10.5067/MEaSUREs/SRTM/SRTMGL3.003"],
-            },
-        ],
-        "CollectionReference": {"ShortName": "SRTMGL3", "Version": "003"},
-        "DataGranule": {
-            "ArchiveAndDistributionInformation": [
-                {"Name": "Not provided", "Size": 1.29836, "SizeUnit": "MB"}
-            ],
-            "DayNightFlag": "Unspecified",
-            "Identifiers": [
-                {
-                    "Identifier": "N00E109.SRTMGL3.hgt",
-                    "IdentifierType": "ProducerGranuleId",
-                }
-            ],
-            "ProductionDateTime": "2012-12-06T17:44:13.000Z",
-        },
-        "GranuleUR": "N00E109.SRTMGL3.hgt",
-        "MetadataSpecification": {
-            "Name": "UMM-G",
-            "URL": "https://cdn.earthdata.nasa.gov/umm/granule/v1.6.6",
-            "Version": "1.6.6",
-        },
-        "Projects": [{"Campaigns": ["SRTM"], "ShortName": "Not provided"}],
-        "ProviderDates": [
-            {"Date": "2013-10-28T13:21:57.660Z", "Type": "Insert"},
-            {"Date": "2019-10-05T14:28:19.606Z", "Type": "Update"},
-        ],
-        "RelatedUrls": [
-            {
-                "Description": "Download N00E109.SRTMGL3.hgt.zip",
-                "Type": "GET DATA",
-                "URL": "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.hgt.zip",
-            },
-            {
-                "Description": "This link provides direct download "
-                "access via S3 to the granule",
-                "Type": "GET DATA VIA DIRECT ACCESS",
-                "URL": "s3://lp-prod-protected/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.hgt.zip",
-            },
-            {
-                "Description": "Download N00E109.SRTMGL3.hgt.cmr.xml",
-                "Type": "VIEW RELATED INFORMATION",
-                "URL": "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-protected/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.hgt.cmr.xml",
-            },
-            {
-                "Description": "This link provides direct download "
-                "access via S3 to the granule",
-                "Type": "VIEW RELATED INFORMATION",
-                "URL": "s3://lp-prod-protected/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.hgt.cmr.xml",
-            },
-            {
-                "Description": "api endpoint to retrieve temporary "
-                "credentials valid for same-region "
-                "direct s3 access",
-                "Type": "VIEW RELATED INFORMATION",
-                "URL": "https://data.lpdaac.earthdatacloud.nasa.gov/s3credentials",
-            },
-            {
-                "Description": "Download N00E109.SRTMGL3.jpg.2.jpg",
-                "Type": "GET RELATED VISUALIZATION",
-                "URL": "https://data.lpdaac.earthdatacloud.nasa.gov/lp-prod-public/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.jpg.2.jpg",
-            },
-            {
-                "Description": "This link provides direct download "
-                "access via S3 to the granule",
-                "Type": "GET RELATED VISUALIZATION",
-                "URL": "s3://lp-prod-public/SRTMGL3.003/N00E109.SRTMGL3.hgt/N00E109.SRTMGL3.jpg.2.jpg",
-            },
-        ],
-        "SpatialExtent": {
-            "HorizontalSpatialDomain": {
-                "Geometry": {
-                    "BoundingRectangles": [
-                        {
-                            "EastBoundingCoordinate": 110.00083333,
-                            "NorthBoundingCoordinate": 1.00083333,
-                            "SouthBoundingCoordinate": -0.00083333,
-                            "WestBoundingCoordinate": 108.99916667,
-                        }
-                    ]
-                }
-            }
-        },
-        "TemporalExtent": {
-            "RangeDateTime": {
-                "BeginningDateTime": "2000-02-11T00:00:00.000Z",
-                "EndingDateTime": "2000-02-21T23:59:59.000Z",
-            }
-        },
-    }
-
-    # manually define a DataGranule for testing downloas without searching
-    granule = DataGranule(
-        collection={"ShortName": "SRTMGL3", "Version": "003"}, cloud_hosted=True
-    )
-    granule["umm"] = sample_umm
-    granule["meta"] = sample_meta
-    test_results = [granule]
-
+ 
     if len(results) == 0:
         print(f"No results from search using '{args.filename}', skipping download.")
+        print(f"File for '{args.filename}' may not exist/was not recorded, check NASA Earthdata site.")
+        sys.exit(1)
     else:
         with Timer(msg="download from earthaccess:"):
             files = earthaccess.download(results, "./hgt_files")

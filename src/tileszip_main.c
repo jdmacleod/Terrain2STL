@@ -15,7 +15,7 @@ int main()
 
     const char *archive_path = "hgt_files/N41W122.SRTMGL3.hgt.zip"; // Replace with your zip file path
     const char *target_file = "N41W122.hgt";                        // Replace with the file name inside the zip
-
+    bool isAvailable = true;
     char *file_content = read_file_from_zip(archive_path, target_file);
 
     printf("checking position 1162585 (middle of buffer):\n");
@@ -38,14 +38,15 @@ int main()
     h += number[0] << 8;
     fprintf(stdout, "examined position %d in buffer of %s, calced little-endianheight %f\n", 1162585, target_file, (float)h);
 
-    add_Tile(&ta, 101, target_file, file_content);
-    add_Tile(&ta, 102, "test", file_content);
-    add_Tile(&ta, 103, "Charlie", file_content); // This will trigger reallocation
+    add_Tile(&ta, 101, isAvailable, target_file, file_content);
+    isAvailable = false; // all the other tiles are not available in this test
+    add_Tile(&ta, 102, isAvailable, "test", file_content);
+    add_Tile(&ta, 103, isAvailable, "Charlie", file_content); // This will trigger reallocation
 
     // Print elements
     for (size_t i = 0; i < ta.size; i++)
     {
-        printf("Tile ID: %d, Name: %s\n", ta.array[i].id, ta.array[i].name);
+        printf("Tile ID: %d, Available: %s, Name: %s\n", ta.array[i].id, ta.array[i].is_available ? "true" : "false", ta.array[i].name);
     }
 
     listTiles(&ta);
@@ -53,7 +54,7 @@ int main()
     Tile *found = find_tile_by_id(&ta, 101);
     if (found != NULL)
     {
-        printf("Found Tile ID: %d, Name: %s\n", found->id, found->name);
+        printf("Found Tile ID: %d, Available: %s, Name: %s\n", found->id, found->is_available ? "true" : "false", found->name);
         // Optionally print height data samples
 
         printf("checking position 1162585 (middle of file):\n");
@@ -84,20 +85,20 @@ int main()
     Tile *found2 = find_tile_by_id(&ta, 104);
     if (found2 != NULL)
     {
-        printf("Found Tile ID: %d, Name: %s\n", found2->id, found2->name);
+        printf("Found Tile ID: %d, Available: %s, Name: %s\n", found2->id, found2->is_available ? "true" : "false", found2->name);
     }
     else
     {
         printf("Tile with ID 104 not found.\n");
         printf("Adding Tile Dawn with ID 104.\n");
-        add_Tile(&ta, 104, "Dawn", file_content);
+        add_Tile(&ta, 104, isAvailable, "Dawn", file_content);
     }
     listTiles(&ta);
 
     Tile *found3 = find_tile_by_name(&ta, "Charlie");
     if (found3 != NULL)
     {
-        printf("Found Tile ID: %d, Name: %s\n", found3->id, found3->name);
+        printf("Found Tile ID: %d, Available: %s, Name: %s\n", found3->id, found3->is_available ? "true" : "false", found3->name);
     }
     else
     {
@@ -107,14 +108,14 @@ int main()
     Tile *found4 = find_tile_by_name(&ta, "Edwin");
     if (found4 != NULL)
     {
-        printf("Found Tile ID: %d, Name: %s\n", found4->id, found4->name);
+        printf("Found Tile ID: %d, Available: %s, Name: %s\n", found4->id, found4->is_available ? "true" : "false", found4->name);
     }
     else
     {
         printf("Tile with name Edwin not found.\n");
     }
 
-    add_Tile(&ta, 105, "Edwin", file_content); // This will trigger reallocation
+    add_Tile(&ta, 105, isAvailable, "Edwin", file_content); // This will trigger reallocation
     listTiles(&ta);
 
     free_TileArray(&ta); // Clean up memory
