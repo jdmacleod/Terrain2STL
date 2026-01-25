@@ -24,3 +24,24 @@ __pycache__/
 
 # earthdata cached files
 cookie.txt
+
+# Object files
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.dylib
+
+# dSYM files (for debugging symbols, often generated on macOS/Xcode)
+*.dSYM/
+*.dSYM.zip
