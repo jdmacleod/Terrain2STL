@@ -92,7 +92,7 @@ run-server: default server-dirs ## run the terrain server with node.js
 
 run-server-aws: ziptile server-dirs ## run the terrain server for AWS with node.js
 	npm install
-	node terrainServer-aws.js
+	node terrainServer-aws.js > logs/server-aws.log 2>&1 &
 
 clean: ## Clean up build artifacts
 	rm -f celevstl celevstl-zip celevstl-ziptile readziphgt tileszip
