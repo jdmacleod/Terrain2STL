@@ -117,9 +117,13 @@ Deploying this service on AWS is handled as follows:
   - The necessary software is installed (NodeJS, Python, C development)
   - The code for this service is cloned from GitHub
   - The environment is prepared for the service
-  - The Makefile entry `run-server` is invoked to start the service
+  - The Makefile entry `run-server-aws` is invoked to start the service
 
 AWS SSM Parameter Store is used to store and retrieve the NASA Earthdata credentials needed for downloading the SRTM tiles (see [get_srtm_tile.py](./get_srtm_tile.py)). The AWS region "US-west-2" must be used for deployment, as that is where the NASA datasets are hosted in AWS.
+
+### Notes
+
+The NASA shuttle mission covered parts of the earth, but not all of the earth. Generally, between 60 N and 56 S was covered, with exceptions over bodies of water. Therefore, not all tiles (1-degree squares) exist.
 
 ### References
 
