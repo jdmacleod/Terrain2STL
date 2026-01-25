@@ -124,9 +124,9 @@ int getElevationLineTiles(float *heights, int width, int nthLine, float startLat
 					{
 						fprintf(stdout, "Tile with name %s not found, need to load it.\n", tileName);
 						// call external program to check and download tile if needed
-						fprintf(stdout, "Calling external program 'get_srtm_tile.py'...\n");
+						fprintf(stdout, "Calling external python program 'get_srtm_tile.py'...\n");
 						char command[100];
-						snprintf(command, sizeof(command), "python3.12 get_srtm_tile.py %s", tileNameSRTM);
+						snprintf(command, sizeof(command), "./get_srtm_tile.py %s", tileNameSRTM);
     					int status = system(command);
     					fprintf(stdout, "External program finished with status %d.\n", status);
 						char *file_content = read_file_from_zip(tileNameZip, tileName);
